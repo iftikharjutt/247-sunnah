@@ -57,14 +57,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun seedDatabase() {
         viewModelScope.launch {
-            // Seed some initial routines if empty
-            allRoutines.first().let {
-                if (it.isEmpty()) {
-                    repository.insertRoutine(Routine(title = "Morning Adhkar", category = "Sunrise", arabicText = "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ", translation = "We have entered the morning and at this very time the whole kingdom belongs to Allah", reference = "Sahih Muslim", baseHour = 6))
-                    repository.insertRoutine(Routine(title = "Siwak", category = "All", arabicText = "السواك مطهرة للفم مرضاة للرب", translation = "The Siwak is a means of purifying the mouth and pleasing the Lord", reference = "Sahih al-Bukhari", baseHour = 8))
-                    repository.insertRoutine(Routine(title = "Midday Nap (Qailulah)", category = "Daytime", arabicText = "قيلوا فإن الشياطين لا تقيل", translation = "Take a midday nap, for the shayaateen do not take a midday nap", reference = "Sahih al-Jami", baseHour = 13))
+            try {
+                // Seed some initial routines if empty
+                allRoutines.first().let {
+                    if (it.isEmpty()) {
+                        repository.insertRoutine(Routine(title = "Morning Adhkar", category = "Sunrise", arabicText = "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ", translation = "We have entered the morning and at this very time the whole kingdom belongs to Allah", reference = "Sahih Muslim", baseHour = 6))
+                        repository.insertRoutine(Routine(title = "Siwak", category = "All", arabicText = "السواك مطهرة للفم مرضاة للرب", translation = "The Siwak is a means of purifying the mouth and pleasing the Lord", reference = "Sahih al-Bukhari", baseHour = 8))
+                        repository.insertRoutine(Routine(title = "Midday Nap (Qailulah)", category = "Daytime", arabicText = "قيلوا فإن الشياطين لا تقيل", translation = "Take a midday nap, for the shayaateen do not take a midday nap", reference = "Sahih al-Jami", baseHour = 13))
+                    }
                 }
+            } catch (e: Exception) {
+                android.util.Log.e("MainViewModel", "Seeding failed", e)
             }
         }
     }
 }
+

@@ -33,7 +33,7 @@ fun DhikrScreen(viewModel: MainViewModel) {
     val target = currentRecord?.target ?: 33
 
     val context = LocalContext.current
-    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    val vibrator = remember { context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator }
 
     Column(
         modifier = Modifier
@@ -54,7 +54,7 @@ fun DhikrScreen(viewModel: MainViewModel) {
             modifier = Modifier
                 .size(300.dp)
                 .clickable {
-                    vibrator.vibrate(50)
+                    vibrator?.vibrate(50)
                     val newCount = if (count + 1 > target) 1 else count + 1
                     viewModel.updateDhikrCount(selectedPhrase, newCount, target)
                 },
