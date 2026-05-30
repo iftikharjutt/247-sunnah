@@ -68,7 +68,7 @@ dependencies {
     ksp("androidx.room:room-compiler:$room_version")
 
     // Gemini SDK
-    implementation("com.google.ai.client.generativeai:generativeai:0.2.0")
+    implementation("com.google.ai.client.generativeai:generativeai:0.9.0")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
