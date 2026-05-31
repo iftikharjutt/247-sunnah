@@ -3,6 +3,7 @@ package com.sunnah.app.viewmodel
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.ai.client.generativeai.ChatSession
 import com.google.ai.client.generativeai.type.Content
 import com.google.ai.client.generativeai.type.GenerateContentResponse
 import com.sunnah.app.data.AiProvider
@@ -20,10 +21,10 @@ class ChatViewModel : ViewModel() {
     val isLoading = _isLoading.asStateFlow()
 
     private var aiProvider: AiProvider? = null
-    private var chat = aiProvider?.getModel()?.startChat()
+    private var chat: ChatSession? = null
 
     fun init(apiKey: String) {
-        if (aiProvider == null) {
+        if (aiProvider == null || aiProvider?.getModel()?.apiKey != apiKey) {
             aiProvider = AiProvider(apiKey)
             chat = aiProvider?.getModel()?.startChat()
         }
@@ -32,6 +33,11 @@ class ChatViewModel : ViewModel() {
     fun sendMessage(text: String) {
         if (text.isBlank()) return
         
+        if (chat == null) {
+            _messages.add(ChatMessage("Error: API not initialized. Please check your key.", false))
+            return
+        }
+
         _messages.add(ChatMessage(text, true))
         _isLoading.value = true
 
@@ -40,9 +46,13 @@ class ChatViewModel : ViewModel() {
                 val response = chat?.sendMessage(text)
                 response?.text?.let {
                     _messages.add(ChatMessage(it, false))
+                } ?: run {
+                    _messages.add(ChatMessage("Error: Received empty response from AI.", false))
                 }
             } catch (e: Exception) {
-                _messages.add(ChatMessage("Error: ${e.message}", false))
+                val errorMsg = e.message ?: "Unknown error occurred"
+                _messages.add(ChatMessage("API Error: $errorMsg", false))
+                android.util.Log.e("ChatViewModel", "Message failed", e)
             } finally {
                 _isLoading.value = false
             }

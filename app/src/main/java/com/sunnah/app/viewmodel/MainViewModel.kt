@@ -61,11 +61,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 // Seed some initial routines if empty
                 allRoutines.first().let {
                     if (it.isEmpty()) {
-                        repository.insertRoutine(Routine(title = "Morning Adhkar", category = "Sunrise", arabicText = "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ", translation = "We have entered the morning and at this very time the whole kingdom belongs to Allah", reference = "Sahih Muslim", baseHour = 6))
-                        repository.insertRoutine(Routine(title = "Siwak", category = "All", arabicText = "السواك مطهرة للفم مرضاة للرب", translation = "The Siwak is a means of purifying the mouth and pleasing the Lord", reference = "Sahih al-Bukhari", baseHour = 8))
+                        repository.insertRoutine(Routine(title = "Wake-up", category = "Sunrise", arabicText = "الْحَمْدُ لِلَّهِ الَّذِي أَحْيَانَا بَعْدَ مَا أَمَاتَنَا وَإِلَيْهِ النُّشُورُ", translation = "Praise is to Allah who gives us life after He has caused us to die and to Him is the return", reference = "Sahih al-Bukhari", baseHour = 5))
+                        repository.insertRoutine(Routine(title = "Siwak", category = "All", arabicText = "السواك مطهرة للفم مرضاة للرب", translation = "The Siwak is a means of purifying the mouth and pleasing the Lord", reference = "Sahih al-Bukhari", baseHour = 6))
+                        repository.insertRoutine(Routine(title = "Morning Adhkar", category = "Sunrise", arabicText = "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ", translation = "We have entered the morning and at this very time the whole kingdom belongs to Allah", reference = "Sahih Muslim", baseHour = 7))
+                        repository.insertRoutine(Routine(title = "Smiling as Charity", category = "Daytime", arabicText = "تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ لَكَ صَدَقَةٌ", translation = "Your smiling in the face of your brother is charity", reference = "Jami` at-Tirmidhi", baseHour = 10))
                         repository.insertRoutine(Routine(title = "Midday Nap (Qailulah)", category = "Daytime", arabicText = "قيلوا فإن الشياطين لا تقيل", translation = "Take a midday nap, for the shayaateen do not take a midday nap", reference = "Sahih al-Jami", baseHour = 13))
+                        repository.insertRoutine(Routine(title = "Evening Adhkar", category = "Sunset", arabicText = "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ", translation = "We have entered the evening and at this very time the whole kingdom belongs to Allah", reference = "Sahih Muslim", baseHour = 18))
+                        repository.insertRoutine(Routine(title = "Sleep Routine", category = "Sleep", arabicText = "بِاسْمِكَ اللَّهُمَّ أَمُوتُ وَأَحْيَا", translation = "In Your name, O Allah, I die and I live", reference = "Sahih al-Bukhari", baseHour = 22))
                     }
                 }
+
             } catch (e: Exception) {
                 android.util.Log.e("MainViewModel", "Seeding failed", e)
             }
