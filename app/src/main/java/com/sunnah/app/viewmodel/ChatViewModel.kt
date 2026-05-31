@@ -7,6 +7,9 @@ import com.sunnah.app.data.AiProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.google.ai.client.generativeai.ChatSession
+import com.google.ai.client.generativeai.type.Content
+import com.google.ai.client.generativeai.type.GenerateContentResponse
 
 data class ChatMessage(val text: String, val isUser: Boolean)
 
@@ -18,19 +21,20 @@ class ChatViewModel : ViewModel() {
     val isLoading = _isLoading.asStateFlow()
 
     private var aiProvider: AiProvider? = null
-    private var chat: Any? = null
+    private var chat: ChatSession? = null
 
     fun init(apiKey: String) {
         if (aiProvider == null || aiProvider?.getModel()?.apiKey != apiKey) {
-            aiProvider = AiProvider(apiKey)
-            chat = aiProvider?.getModel()?.startChat()
+            val provider = AiProvider(apiKey)
+            aiProvider = provider
+            chat = provider.getModel().startChat()
         }
     }
 
     fun sendMessage(text: String) {
         if (text.isBlank()) return
         
-        val currentChat = chat as? com.google.ai.client.generativeai.ChatSession
+        val currentChat = chat
         if (currentChat == null) {
             _messages.add(ChatMessage("Error: API not initialized. Please check your key.", false))
             return
@@ -41,7 +45,7 @@ class ChatViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val response = currentChat.sendMessage(text)
+                val response: GenerateContentResponse = currentChat.sendMessage(text)
                 response.text?.let { responseText: String ->
                     _messages.add(ChatMessage(responseText, false))
                 } ?: run {
