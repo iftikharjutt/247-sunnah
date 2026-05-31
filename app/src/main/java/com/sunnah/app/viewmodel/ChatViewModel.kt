@@ -7,9 +7,8 @@ import com.sunnah.app.data.AiProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.google.ai.client.generativeai.ChatSession
 import com.google.ai.client.generativeai.type.Content
-import com.google.ai.client.generativeai.type.GenerateContentResponse
+import com.google.ai.client.generativeai.type.content
 
 data class ChatMessage(val text: String, val isUser: Boolean)
 
@@ -21,22 +20,21 @@ class ChatViewModel : ViewModel() {
     val isLoading = _isLoading.asStateFlow()
 
     private var aiProvider: AiProvider? = null
-    private var chat: ChatSession? = null
+    private val chatHistory = mutableListOf<Content>()
 
     fun init(apiKey: String) {
         if (aiProvider == null || aiProvider?.getModel()?.apiKey != apiKey) {
-            val provider = AiProvider(apiKey)
-            aiProvider = provider
-            chat = provider.getModel().startChat()
+            aiProvider = AiProvider(apiKey)
+            chatHistory.clear()
         }
     }
 
     fun sendMessage(text: String) {
         if (text.isBlank()) return
         
-        val currentChat = chat
-        if (currentChat == null) {
-            _messages.add(ChatMessage("Error: API not initialized. Please check your key.", false))
+        val model = aiProvider?.getModel()
+        if (model == null) {
+            _messages.add(ChatMessage("Error: AI not initialized. Please check your key.", false))
             return
         }
 
@@ -45,10 +43,19 @@ class ChatViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val response: GenerateContentResponse = currentChat.sendMessage(text)
-                response.text?.let { responseText: String ->
+                // Add user message to history
+                val userContent = content("user") { text(text) }
+                chatHistory.add(userContent)
+
+                // Generate response using full history for context
+                val response = model.generateContent(*chatHistory.toTypedArray())
+                val responseText = response.text
+                
+                if (responseText != null) {
                     _messages.add(ChatMessage(responseText, false))
-                } ?: run {
+                    // Add model response to history
+                    chatHistory.add(content("model") { text(responseText) })
+                } else {
                     _messages.add(ChatMessage("Error: Received empty response from AI.", false))
                 }
             } catch (e: Exception) {
