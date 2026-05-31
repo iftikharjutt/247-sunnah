@@ -3,9 +3,6 @@ package com.sunnah.app.viewmodel
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.ai.client.generativeai.ChatSession
-import com.google.ai.client.generativeai.type.Content
-import com.google.ai.client.generativeai.type.GenerateContentResponse
 import com.sunnah.app.data.AiProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,7 +18,7 @@ class ChatViewModel : ViewModel() {
     val isLoading = _isLoading.asStateFlow()
 
     private var aiProvider: AiProvider? = null
-    private var chat: ChatSession? = null
+    private var chat: Any? = null
 
     fun init(apiKey: String) {
         if (aiProvider == null || aiProvider?.getModel()?.apiKey != apiKey) {
@@ -33,7 +30,8 @@ class ChatViewModel : ViewModel() {
     fun sendMessage(text: String) {
         if (text.isBlank()) return
         
-        if (chat == null) {
+        val currentChat = chat as? com.google.ai.client.generativeai.ChatSession
+        if (currentChat == null) {
             _messages.add(ChatMessage("Error: API not initialized. Please check your key.", false))
             return
         }
@@ -43,9 +41,9 @@ class ChatViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val response = chat?.sendMessage(text)
-                response?.text?.let {
-                    _messages.add(ChatMessage(it, false))
+                val response = currentChat.sendMessage(text)
+                response.text?.let { responseText ->
+                    _messages.add(ChatMessage(responseText, false))
                 } ?: run {
                     _messages.add(ChatMessage("Error: Received empty response from AI.", false))
                 }
