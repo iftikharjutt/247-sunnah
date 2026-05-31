@@ -42,7 +42,7 @@ class ChatViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val response = currentChat.sendMessage(text)
-                response.text?.let { responseText ->
+                response.text?.let { responseText: String ->
                     _messages.add(ChatMessage(responseText, false))
                 } ?: run {
                     _messages.add(ChatMessage("Error: Received empty response from AI.", false))
